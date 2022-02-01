@@ -22,7 +22,7 @@ print(server)
 while True:
     buffer = bytes(server.get_buffer(universe_id))
     if len(buffer) == 512:
-        print("VIDEO ID: ", buffer[NET-1] * 0x0001 + buffer[NET] * 0x0001)
+        print("VIDEO ID: ", (buffer[NET] << 8) + buffer[NET-1])
         print("COMMAND: ", buffer[NET+1])
-        print("PLAYBACK SPEED ???: ", buffer[NET+2] * 0x0001 + buffer[::NET+4] * 0x0001)
+        print("PLAYBACK SPEED ???: ", (buffer[::NET+4] << 8) + buffer[NET+2])
     time.sleep(0.5)
