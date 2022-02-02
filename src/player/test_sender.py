@@ -31,8 +31,10 @@ stupid.set_simplified(False)
 
 # Start persistent thread
 
-stupid.set_single_value(address=100, value=99)
-stupid.set_single_value(address=101, value=200)
+stupid.set_single_value(address=99, value=12312)
+stupid.set_single_value(address=100, value=0)
+stupid.set_single_value(address=101, value=1)
+stupid.set_single_value(address=102, value=1)
 stupid.show()
 
 del stupid
