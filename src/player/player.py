@@ -15,24 +15,35 @@ class VlcPlayer():
         self.player = self.vlc_instance.media_player_new()
         self.player.set_fullscreen(True)
         self.player.audio_set_mute(True)
-        self.video_id = 0
+        self.video_id = -1
+        self.folder_id = -1
         self.last_command = 0
         self.speed = 1
+        self.catalogue = {}
         vlc.libvlc_media_player_set_rate(self.player, self.speed)
-        self.catalogue=glob.glob(os.path.join(MEDIA_DIR, '*'))
-        self.catalogue.sort()
-        for i in range(len(self.catalogue)):
-            print("Media {} is at id: {}".format(self.catalogue[i], i+1))
+
+        folders=len(glob.glob(os.path.join(MEDIA_DIR, '*')))
+        for i in range(folders):
+            self.catalogue[i] = glob.glob(os.path.join(MEDIA_DIR, str(i), '*'))
+            self.catalogue[i].sort()
+
+        print("MEDIA CATALOGUE: {}".format(self.catalogue))
 
 
-    def update(self, media_id, command, speed):
-        if (media_id > len(self.catalogue) or media_id < 0):
+    def update(self, folder, media_id, command, speed):
+
+        if folder > len(self.catalogue.keys()) or folder < 0:
+            print("IMPOSSIBLE FOLDER, IGNORING UPDATE")
+        
+
+        if (media_id > len(self.catalogue[folder]) or media_id < 0):
             print("IMPOSSIBLE MEDIA ID, IGNORING UPDATE")
             return
 
-        if not media_id == self.video_id:
-            media = self.vlc_instance.media_new(self.catalogue[media_id -1])
+        if not folder == self.folder_id:
+            media = self.vlc_instance.media_new(self.catalogue[folder][media_id])
             self.player.set_media(media)
+            self.folder_id = folder
             self.video_id = media_id
 
         if not command == self.last_command:
