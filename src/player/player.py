@@ -21,9 +21,11 @@ class VlcPlayer():
         vlc.libvlc_media_player_set_rate(self.player, self.speed)
         self.catalogue=glob.glob(os.path.join(MEDIA_DIR, '*'))
         self.catalogue.sort()
+        for i in range(len(self.catalogue)):
+            print("Media {} is at id: {}".format(self.catalogue[i], i+1))
 
 
-    def update(self, media_id, command, extra):
+    def update(self, media_id, command, speed):
         if (media_id > len(self.catalogue) or media_id < 0):
             print("IMPOSSIBLE MEDIA ID, IGNORING UPDATE")
             return

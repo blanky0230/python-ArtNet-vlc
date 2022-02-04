@@ -22,10 +22,12 @@ print(server)
 old_state = {}
 player = VlcPlayer()
 
+
+
 while True:
     buffer = bytes(server.get_buffer(universe_id))
     if len(buffer) == 512:
-        new_state = { 'media_id': ((buffer[NET] << 8) & 0xff00) + buffer[NET+1], 'command': buffer[NET+2], 'extra': ((buffer[NET+3] << 8) & 0xff00) + buffer[NET+4] }
+        new_state = { 'media_id': ((buffer[NET] << 8) & 0xff00) + buffer[NET+1], 'command': buffer[NET+2], 'speed': buffer[NET+3]}
         if (not old_state == new_state):
             print(new_state)
             player.update(**new_state)
