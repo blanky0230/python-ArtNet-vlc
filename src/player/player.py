@@ -40,23 +40,28 @@ class VlcPlayer():
             print("IMPOSSIBLE MEDIA ID, IGNORING UPDATE")
             return
 
-        if not folder == self.folder_id:
+        if not folder == self.folder_id or not media_id == self.video_id:
             media = self.vlc_instance.media_new(self.catalogue[folder][media_id])
+
             self.player.set_media(media)
             self.folder_id = folder
             self.video_id = media_id
 
-        if not command == self.last_command:
-            if command == 0:
-                return
-            elif command == 1:
-                if self.last_command == 2:
-                    self.player.pause() #unpause if we were paused
-                else:
-                    self.player.play()
-            elif command == 2:
-                self.player.pause()
-            elif command == 3:
-                self.player.stop()
+            if command == 1:
+                self.player.play()
 
-        self.last_command = command
+        if command == 0:
+            return
+
+        elif command == 1:
+
+            if self.last_command == 2:
+                self.player.pause() #unpause if we were paused
+            else:
+                self.player.play()
+
+        elif command == 2:
+            self.player.pause()
+
+        elif command == 3:
+            self.player.stop()
