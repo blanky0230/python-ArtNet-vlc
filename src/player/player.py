@@ -12,25 +12,46 @@ MEDIA_DIR = os.environ['MEDIA_DIR']
 class VlcPlayer():
 
     def __init__(self):
-        self.vlc_instance = vlc.get_default_instance()
-        self.player = self.vlc_instance.media_player_new()
+        self.player = vlc.MediaPlayer()
         self.player.set_fullscreen(True)
         self.player.audio_set_mute(True)
+        self.player.video_set_key_input(True)
+        self.player.video_set_mouse_input(True)
+
+        self.player.video_set_logo_int(
+            vlc.VideoLogoOption.logo_opacity, 255)
+
+        self.player.video_set_logo_int(
+            vlc.VideoLogoOption.logo_position, 4)
+
         self.video_id = -1
         self.folder_id = -1
         self.last_command = 0
         self.speed = 1
         self.catalogue = {}
-        vlc.libvlc_media_player_set_rate(self.player, self.speed)
 
-        folders = len(glob.glob(os.path.join(MEDIA_DIR, '*')))
+        vlc.libvlc_media_player_set_rate(self.player, self.speed)
+        self.logos = glob.glob(os.path.join(MEDIA_DIR, 'logos', '*'))
+
+        folders = len(glob.glob(os.path.join(MEDIA_DIR, '**')))
         for i in range(folders):
             self.catalogue[i] = glob.glob(os.path.join(MEDIA_DIR, str(i), '*'))
             self.catalogue[i].sort()
 
+        print("LOGOS: {}".format(self.logos))
         print("MEDIA CATALOGUE: {}".format(self.catalogue))
 
-    def update(self, folder, media_id, command, speed):
+    def update(self, folder, media_id, command, speed, logo):
+
+        if logo < 1:
+            self.player.video_set_logo_int(vlc.VideoLogoOption.logo_enable, 0)
+        else:
+            if logo - 1 > len(self.logos):
+                print("IMPOSSIBLE LOGO, IGNORING UPDATE")
+                return
+            self.player.video_set_logo_int(vlc.VideoLogoOption.logo_enable, 1)
+            self.player.video_set_logo_string(
+                vlc.VideoLogoOption.logo_file, self.logos[logo - 1])
 
         if folder > len(self.catalogue.keys()) or folder < 0:
             print("IMPOSSIBLE FOLDER, IGNORING UPDATE")
@@ -45,7 +66,7 @@ class VlcPlayer():
             return
 
         if not folder == self.folder_id or not media_id == self.video_id:
-            media = self.vlc_instance.media_new(
+            media = vlc.Media(
                 self.catalogue[folder][media_id])
 
             self.player.set_media(media)
