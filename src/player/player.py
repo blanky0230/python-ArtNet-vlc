@@ -4,9 +4,10 @@ import glob
 import os
 
 from dotenv import load_dotenv
-config = load_dotenv(".env") 
+config = load_dotenv(".env")
 
-MEDIA_DIR=os.environ['MEDIA_DIR']
+MEDIA_DIR = os.environ['MEDIA_DIR']
+
 
 class VlcPlayer():
 
@@ -22,33 +23,39 @@ class VlcPlayer():
         self.catalogue = {}
         vlc.libvlc_media_player_set_rate(self.player, self.speed)
 
-        folders=len(glob.glob(os.path.join(MEDIA_DIR, '*')))
+        folders = len(glob.glob(os.path.join(MEDIA_DIR, '*')))
         for i in range(folders):
             self.catalogue[i] = glob.glob(os.path.join(MEDIA_DIR, str(i), '*'))
             self.catalogue[i].sort()
 
         print("MEDIA CATALOGUE: {}".format(self.catalogue))
 
-
     def update(self, folder, media_id, command, speed):
 
         if folder > len(self.catalogue.keys()) or folder < 0:
             print("IMPOSSIBLE FOLDER, IGNORING UPDATE")
-        
+            return
 
-        if (media_id > len(self.catalogue[folder]) or media_id < 0):
+        if media_id > len(self.catalogue[folder]) or media_id < 0:
             print("IMPOSSIBLE MEDIA ID, IGNORING UPDATE")
             return
 
+        if speed < 0 or speed > 255:
+            print("IMPOSSIBLE SPEED, IGNORING UPDATE")
+            return
+
         if not folder == self.folder_id or not media_id == self.video_id:
-            media = self.vlc_instance.media_new(self.catalogue[folder][media_id])
+            media = self.vlc_instance.media_new(
+                self.catalogue[folder][media_id])
 
             self.player.set_media(media)
+
             self.folder_id = folder
             self.video_id = media_id
 
-            if command == 1:
-                self.player.play()
+            # if media is changed after pause - our pause-resume hack has to be reset
+            self.last_command = -1
+            self.player.stop()
 
         if command == 0:
             return
@@ -56,12 +63,15 @@ class VlcPlayer():
         elif command == 1:
 
             if self.last_command == 2:
-                self.player.pause() #unpause if we were paused
+                self.player.pause()  # unpause if we were paused
             else:
                 self.player.play()
 
-        elif command == 2:
+        elif command == 2 and self.player.is_playing():
             self.player.pause()
 
         elif command == 3:
             self.player.stop()
+
+        vlc.libvlc_media_player_set_rate(self.player, speed / 100)
+        self.last_command = command
