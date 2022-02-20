@@ -105,7 +105,6 @@ class VlcPlayer(Tk.Frame):
 
             # if media is changed after pause - our pause-resume hack has to be reset
             self.last_command = -1
-            self.player.stop()
 
         if command == 0:
             return
