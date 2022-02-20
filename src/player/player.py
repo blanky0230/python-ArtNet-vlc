@@ -5,19 +5,30 @@ import os
 
 from dotenv import load_dotenv
 config = load_dotenv(".env")
+import tkinter as Tk
+from tkinter import ttk
+from tkinter.filedialog import askopenfilename
+from tkinter.messagebox import showerror
 
 MEDIA_DIR = os.environ['MEDIA_DIR']
 
 
-class VlcPlayer():
+class VlcPlayer(Tk.Frame):
 
-    def __init__(self):
+    def __init__(self, parent, title=None):
+        Tk.Frame.__init__(self,parent,  borderwidth=0)
+        
+        self.parent = parent
+        self.videopanel = ttk.Frame(self.parent)
+
+        self.canvas = Tk.Canvas(self.videopanel, background='black', highlightthickness=0)
+        self.canvas.pack(fill=Tk.BOTH, expand=1)
+
+        self.videopanel.pack(fill=Tk.BOTH, expand=1)
+        self.parent.bind("<Configure>", self.OnConfigure)  # catch window resize, etc.
+
         self.vlcInstance = vlc.Instance('--video-wallpaper')
         self.player = self.vlcInstance.media_player_new()
-        # self.player.set_fullscreen(True)
-        # self.player.audio_set_mute(True)
-        # self.player.video_set_key_input(True)
-        # self.player.video_set_mouse_input(True)
 
         self.player.video_set_logo_int(
             vlc.VideoLogoOption.logo_opacity, 255)
@@ -30,7 +41,17 @@ class VlcPlayer():
         self.last_command = 0
         self.speed = 1
         self.catalogue = {}
-        self.windowHandle = None
+        self.windowHandle = self.videopanel.winfo_id()
+
+        if os.name == 'nt':
+            self.player.set_hwnd(self.windowHandle)
+
+        elif os.name == 'posix':
+            self.player.set_xwindow(self.windowHandle)
+
+        else:
+            pass #Screw MacOS nobody needs that :3
+
 
         vlc.libvlc_media_player_set_rate(self.player, self.speed)
         self.logos = glob.glob(os.path.join(MEDIA_DIR, 'logos', '*'))
@@ -43,19 +64,14 @@ class VlcPlayer():
         print("LOGOS: {}".format(self.logos))
         print("MEDIA CATALOGUE: {}".format(self.catalogue))
 
+    def OnConfigure(self, *unused):
+        pass
+
+    def OnClose(self, *unused):
+        self.parent.quit()
+        self.parent.destroy()
+
     def update(self, folder, media_id, command, speed, logo):
-        print("WINDOW HANDLE QUERY: ", vlc.libvlc_media_player_get_xwindow(
-            self.player))
-
-        print("WINDOW HANDLE - STATE: ", self.windowHandle)
-
-        if self.windowHandle is not None:
-            if os.name == 'nt':
-                self.player.set_hwnd(self.windowHandle)
-
-            elif os.name == 'posix':
-                self.player.set_xwindow(self.windowHandle)
-
         if logo < 1:
             self.player.video_set_logo_int(vlc.VideoLogoOption.logo_enable, 0)
         else:
@@ -100,12 +116,6 @@ class VlcPlayer():
                 self.player.pause()  # unpause if we were paused
             else:
                 self.player.play()
-                if os.name == 'nt':
-                    self.windowHandle = vlc.libvlc_media_player_get_hwnd(
-                        self.player)
-                elif os.name == 'posix':
-                    self.windowHandle = vlc.libvlc_media_player_get_xwindow(
-                        self.player)
 
         elif command == 2 and self.player.is_playing():
             self.player.pause()

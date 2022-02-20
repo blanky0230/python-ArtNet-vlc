@@ -35,7 +35,7 @@ stupid.set_simplified(False)
 
 stupid.set_single_value(address=99, value=12312)
 stupid.set_single_value(address=100, value=0)
-stupid.set_single_value(address=101, value=1)
+stupid.set_single_value(address=101, value=0)
 stupid.set_single_value(address=102, value=1)
 stupid.set_single_value(address=103, value=100)
 stupid.set_single_value(address=104, value=0)

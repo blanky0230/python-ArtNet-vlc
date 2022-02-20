@@ -2,6 +2,8 @@ from stupidArtnet import StupidArtnetServer
 from player import VlcPlayer
 import os
 import time
+import tkinter as Tk
+from tkinter import ttk
 
 from dotenv import load_dotenv
 config = load_dotenv(".env")
@@ -21,10 +23,16 @@ universe_id = server.register_listener(
 
 print(server)
 old_state = {}
-player = VlcPlayer()
+root = Tk.Tk()
+root.attributes('-topmost', 1)
+root.attributes('-fullscreen', True)
+root.configure(bg='black')
+player = VlcPlayer(root)
 
 
-while True:
+def update():
+    root.update()
+    global old_state
     try:
         buffer = bytes(server.get_buffer(universe_id))
         if len(buffer) == 512:
@@ -37,3 +45,6 @@ while True:
     except Exception as e:
         print("SOME ERROR OCCURED! Trying not to die...")
         print(str(e))
+
+while True:
+    update()
