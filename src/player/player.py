@@ -7,8 +7,6 @@ from dotenv import load_dotenv
 config = load_dotenv(".env")
 import tkinter as Tk
 from tkinter import ttk
-from tkinter.filedialog import askopenfilename
-from tkinter.messagebox import showerror
 
 MEDIA_DIR = os.environ['MEDIA_DIR']
 
@@ -61,6 +59,8 @@ class VlcPlayer(Tk.Frame):
             self.catalogue[i] = glob.glob(os.path.join(MEDIA_DIR, str(i), '*'))
             self.catalogue[i].sort()
 
+        self.cache = {}
+
         print("LOGOS: {}".format(self.logos))
         print("MEDIA CATALOGUE: {}".format(self.catalogue))
 
@@ -95,10 +95,13 @@ class VlcPlayer(Tk.Frame):
             return
 
         if not folder == self.folder_id or not media_id == self.video_id:
-            media = self.vlcInstance.media_new_path(
-                self.catalogue[folder][media_id])
-
-            self.player.set_media(media)
+            key = str([folder,media_id])
+            if  not key in self.cache:
+                media = self.vlcInstance.media_new_path(self.catalogue[folder][media_id])
+                self.cache[key] = media
+                self.player.set_media(media)
+            else:
+                self.player.set_media(self.cache[key])
 
             self.folder_id = folder
             self.video_id = media_id
