@@ -45,7 +45,6 @@ def update():
     except Exception as e:
         print("SOME ERROR OCCURED! Trying not to die...")
         print(str(e))
-        raise e
 
 while True:
     update()
