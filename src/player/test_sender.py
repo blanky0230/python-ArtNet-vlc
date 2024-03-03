@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from stupidArtnet import StupidArtnet
 import random
+load_dotenv()
 config = load_dotenv(".env")
 
 UDP_IP = os.environ['UDP_IP']
