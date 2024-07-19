@@ -6,6 +6,7 @@ import tkinter as Tk
 from tkinter import ttk
 
 from dotenv import load_dotenv
+load_dotenv()
 config = load_dotenv(".env")
 
 UDP_IP = os.environ['UDP_IP']

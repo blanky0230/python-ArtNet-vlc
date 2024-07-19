@@ -4,6 +4,7 @@ import glob
 import os
 
 from dotenv import load_dotenv
+load_dotenv()
 config = load_dotenv(".env")
 import tkinter as Tk
 from tkinter import ttk
